@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance Score Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Simple transition for smoother UI feedback */
+        input, button {
+            transition: all 0.2s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 flex items-center justify-center min-h-screen">
+
+    <div class="w-full max-w-2xl mx-auto bg-white p-6 sm:p-8 rounded-xl shadow-lg">
+        
+        <div class="text-center mb-6">
+            <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Performance Score Calculator</h1>
+            <p class="text-gray-500 mt-2">Calculate your performance score based on the formula below.</p>
+            <code class="block bg-gray-100 text-gray-600 p-3 rounded-md text-sm mt-4">Ps = (Nu × Wu) + (Nsc × Wsc) + (Nsd × Wsd) + (Nm × Wm)</code>
+        </div>
+
+        <div id="calculator-form">
+            <!-- Grid for inputs -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+
+                <!-- Uniques Section -->
+                <div class="space-y-2">
+                    <label for="norm_uniques" class="block text-sm font-medium text-gray-700">Normalized Uniques (Nu)</label>
+                    <input type="number" id="norm_uniques" placeholder="e.g., 50" class="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="space-y-2">
+                    <label for="weight_uniques" class="block text-sm font-medium text-gray-700">Weight for Uniques (Wu)</label>
+                    <input type="number" id="weight_uniques" placeholder="e.g., 2.5" class="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 weight-input">
+                </div>
+
+                <!-- Session Count Section -->
+                <div class="space-y-2">
+                    <label for="norm_session_count" class="block text-sm font-medium text-gray-700">Normalized Session Count (Nsc)</label>
+                    <input type="number" id="norm_session_count" placeholder="e.g., 100" class="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="space-y-2">
+                    <label for="weight_session_count" class="block text-sm font-medium text-gray-700">Weight for Session Count (Wsc)</label>
+                    <input type="number" id="weight_session_count" placeholder="e.g., 2.5" class="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 weight-input">
+                </div>
+
+                <!-- Session Duration Section -->
+                <div class="space-y-2">
+                    <label for="norm_session_duration" class="block text-sm font-medium text-gray-700">Normalized Session Duration (Nsd)</label>
+                    <input type="number" id="norm_session_duration" placeholder="e.g., 75" class="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="space-y-2">
+                    <label for="weight_session_duration" class="block text-sm font-medium text-gray-700">Weight for Session Duration (Wsd)</label>
+                    <input type="number" id="weight_session_duration" placeholder="e.g., 2.5" class="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 weight-input">
+                </div>
+
+                <!-- Minutes Watched Section -->
+                <div class="space-y-2">
+                    <label for="norm_minutes_watched" class="block text-sm font-medium text-gray-700">Normalized Minutes Watched (Nm)</label>
+                    <input type="number" id="norm_minutes_watched" placeholder="e.g., 120" class="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="space-y-2">
+                    <label for="weight_minutes_watched" class="block text-sm font-medium text-gray-700">Weight for Minutes Watched (Wm)</label>
+                    <input type="number" id="weight_minutes_watched" placeholder="e.g., 2.5" class="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 weight-input">
+                </div>
+            </div>
+
+            <!-- Validation Message -->
+            <div id="validation-message" class="text-center text-sm mt-6 h-5"></div>
+            
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4 mt-4">
+                 <button id="calculate-btn" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                    Calculate
+                </button>
+                 <button id="reset-btn" class="w-full bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400">
+                    Reset
+                </button>
+            </div>
+
+        </div>
+
+        <!-- Result Display -->
+        <div class="mt-8 border-t pt-6 text-center">
+            <h2 class="text-lg font-medium text-gray-600">Performance Score (Ps)</h2>
+            <p id="result" class="text-4xl sm:text-5xl font-bold text-gray-800 mt-2">0.00</p>
+        </div>
+
+    </div>
+
+    <script>
+        // DOM element references
+        const normUniques = document.getElementById('norm_uniques');
+        const weightUniques = document.getElementById('weight_uniques');
+        const normSessionCount = document.getElementById('norm_session_count');
+        const weightSessionCount = document.getElementById('weight_session_count');
+        const normSessionDuration = document.getElementById('norm_session_duration');
+        const weightSessionDuration = document.getElementById('weight_session_duration');
+        const normMinutesWatched = document.getElementById('norm_minutes_watched');
+        const weightMinutesWatched = document.getElementById('weight_minutes_watched');
+
+        const calculateBtn = document.getElementById('calculate-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const resultDisplay = document.getElementById('result');
+        const validationMessage = document.getElementById('validation-message');
+        
+        const weightInputs = document.querySelectorAll('.weight-input');
+
+        // Function to check the sum of weights
+        const checkWeights = () => {
+            const wu = parseFloat(weightUniques.value) || 0;
+            const wsc = parseFloat(weightSessionCount.value) || 0;
+            const wsd = parseFloat(weightSessionDuration.value) || 0;
+            const wm = parseFloat(weightMinutesWatched.value) || 0;
+            const totalWeight = wu + wsc + wsd + wm;
+            
+            if (totalWeight === 10) {
+                validationMessage.textContent = 'Total weight is 10. Ready to calculate!';
+                validationMessage.classList.remove('text-red-500');
+                validationMessage.classList.add('text-green-600');
+                calculateBtn.disabled = false;
+            } else {
+                validationMessage.textContent = `Total weight must be 10. Current: ${totalWeight.toFixed(2)}`;
+                validationMessage.classList.remove('text-green-600');
+                validationMessage.classList.add('text-red-500');
+                calculateBtn.disabled = true;
+            }
+        };
+        
+        // Function to perform the calculation
+        const calculateScore = () => {
+            // Get normalized values, defaulting to 0 if empty
+            const nu = parseFloat(normUniques.value) || 0;
+            const nsc = parseFloat(normSessionCount.value) || 0;
+            const nsd = parseFloat(normSessionDuration.value) || 0;
+            const nm = parseFloat(normMinutesWatched.value) || 0;
+            
+            // Get weight values
+            const wu = parseFloat(weightUniques.value) || 0;
+            const wsc = parseFloat(weightSessionCount.value) || 0;
+            const wsd = parseFloat(weightSessionDuration.value) || 0;
+            const wm = parseFloat(weightMinutesWatched.value) || 0;
+
+            // Perform the calculation
+            const performanceScore = (nu * wu) + (nsc * wsc) + (nsd * wsd) + (nm * wm);
+            
+            // Display the result, formatted to two decimal places
+            resultDisplay.textContent = performanceScore.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        };
+        
+        // Function to reset the form
+        const resetForm = () => {
+            document.getElementById('calculator-form').reset();
+            resultDisplay.textContent = '0.00';
+            checkWeights(); // Re-run validation check after reset
+        };
+
+        // Event Listeners
+        weightInputs.forEach(input => input.addEventListener('input', checkWeights));
+        calculateBtn.addEventListener('click', calculateScore);
+        resetBtn.addEventListener('click', resetForm);
+        
+        // Initial check on page load
+        window.addEventListener('load', checkWeights);
+
+    </script>
+</body>
+</html>
